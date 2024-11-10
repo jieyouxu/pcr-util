@@ -11,10 +11,6 @@ pub(crate) struct ReviewInfo<'a> {
     pub(crate) p_high: &'a [IssueMetadata],
 }
 
-// pub(crate) t_compiler_p_high: &'a [IssueMetadata],
-//
-//     pub(crate) t_compiler_p_high_no_owner: &'a [IssueMetadata],
-
 impl<'a> ReviewInfo<'a> {
     pub(crate) fn new(p_high: &'a [IssueMetadata]) -> Self {
         Self { p_high }
@@ -33,14 +29,15 @@ impl<'a> ReviewInfo<'a> {
     pub(crate) fn t_compiler_p_high_partition_by_ownership(
         &'a self,
     ) -> (Vec<&'a IssueMetadata>, Vec<&'a IssueMetadata>) {
-        self.p_high.iter().partition(|issue| {
-            let labels = issue.labels.iter();
-            labels.clone().map(String::as_str).contains(&"T-compiler")
-                    // No WG
-                    && !labels.clone().any(|label| label.starts_with("WG-"))
+        self.p_high
+            .iter()
+            .filter(|issue| issue.labels.iter().map(String::as_str).contains(&"T-compiler"))
+            .partition(|issue| {
+                // No WG
+                !issue.labels.iter().any(|label| label.starts_with("WG-"))
                     // and no assignee
                     && issue.assignees.is_empty()
-        })
+            })
     }
 }
 
@@ -92,7 +89,7 @@ impl<'c> RenderCtxt<'c> {
     }
 
     fn render_document_heading(&mut self, title: &str) -> EResult<()> {
-        writeln!(&mut self.buf, "<!-- generated with pcr-util -->")?;
+        writeln!(&mut self.buf, "<!-- stubs generated with pcr-util -->")?;
         writeln!(&mut self.buf, "# {}\n", title)?;
         Ok(())
     }
@@ -100,7 +97,7 @@ impl<'c> RenderCtxt<'c> {
     fn render_no_team(&mut self, no_team: &[&IssueMetadata]) -> EResult<()> {
         const NO_TEAM_URL: &str = "https://github.com/rust-lang/rust/issues?q=is%3Aopen%20is%3Aissue%20label%3AP-high%20-label%3AT-cargo%20-label%3AT-community%20-label%3AT-compiler%20-label%3AT-core%20-label%3AT-crates-io%20-label%3AT-dev-tools%20-label%3AT-docs-rs%20-label%3AT-infra%20-label%3AT-libs%20-label%3AT-libs-api%20-label%3AT-release%20-label%3AT-release%20-label%3AT-rustdoc%20-label%3AT-style%20-label%3AT-types%20-label%3AT-lang";
         writeln!(&mut self.buf, "## P-high missing team label\n")?;
-        writeln!(&mut self.buf, "[P-high issues without team label]({NO_TEAM_URL})")?;
+        writeln!(&mut self.buf, "[P-high issues without team label]({NO_TEAM_URL})\n\n")?;
 
         if no_team.is_empty() {
             writeln!(&mut self.buf, "**Did not find P-high issues without a team label**")?;
@@ -114,15 +111,15 @@ impl<'c> RenderCtxt<'c> {
 
     fn render_no_owner(&mut self, no_owner: &[&IssueMetadata]) -> EResult<()> {
         const NO_OWNER_URL: &str = "is:issue is:open label:T-compiler label:P-high -label:wg-debugging -label:WG-embedded -label:WG-diagnostics -label:WG-async -label:WG-incr-comp no:assignee sort:created-asc -label:I-types-nominated -label:I-lang-nominated -label:I-compiler-nominated -label:T-types -label:WG-llvm";
-        writeln!(&mut self.buf, "## P-high T-compiler missing owner (no WG, no assignee)\n")?;
-        writeln!(&mut self.buf, "[P-high issues with no owner]({NO_OWNER_URL})")?;
+        writeln!(&mut self.buf, "## P-high T-compiler issues missing owner (no WG and no assignee)\n")?;
+        writeln!(&mut self.buf, "[P-high issues with no owner]({NO_OWNER_URL})\n\n")?;
         self.render_issues(no_owner)?;
         write!(&mut self.buf, "\n\n")?;
         Ok(())
     }
 
     fn render_has_owner(&mut self, has_owner: &[&IssueMetadata]) -> EResult<()> {
-        writeln!(&mut self.buf, "## P-high T-compiler that has an owner (WG or assignee)\n")?;
+        writeln!(&mut self.buf, "## P-high T-compiler issues with owner (WG or assignee)\n")?;
         self.render_issues(has_owner)?;
         write!(&mut self.buf, "\n\n")?;
         Ok(())
