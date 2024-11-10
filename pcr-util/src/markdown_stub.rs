@@ -110,7 +110,7 @@ impl<'c> RenderCtxt<'c> {
     }
 
     fn render_no_owner(&mut self, no_owner: &[&IssueMetadata]) -> EResult<()> {
-        const NO_OWNER_URL: &str = "is:issue is:open label:T-compiler label:P-high -label:wg-debugging -label:WG-embedded -label:WG-diagnostics -label:WG-async -label:WG-incr-comp no:assignee sort:created-asc -label:I-types-nominated -label:I-lang-nominated -label:I-compiler-nominated -label:T-types -label:WG-llvm";
+        const NO_OWNER_URL: &str = "https://github.com/rust-lang/rust/issues?q=is%3Aissue%20is%3Aopen%20label%3AT-compiler%20label%3AP-high%20-label%3Awg-debugging%20-label%3AWG-embedded%20-label%3AWG-diagnostics%20-label%3AWG-async%20-label%3AWG-incr-comp%20no%3Aassignee%20sort%3Acreated-asc%20-label%3AI-types-nominated%20-label%3AI-lang-nominated%20-label%3AI-compiler-nominated%20-label%3AT-types%20-label%3AWG-llvm";
         writeln!(&mut self.buf, "## P-high T-compiler issues missing owner (no WG and no assignee)\n")?;
         writeln!(&mut self.buf, "[P-high issues with no owner]({NO_OWNER_URL})\n\n")?;
         self.render_issues(no_owner)?;
