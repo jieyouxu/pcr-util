@@ -13,6 +13,7 @@
 mod config;
 mod issue_metadata;
 mod logging;
+mod markdown_stub;
 
 use std::fs;
 use std::process::Command;
@@ -45,7 +46,7 @@ fn main() -> EResult<()> {
     }
 
     let mut cmd = Command::new("gh");
-    cmd.current_dir(config.repo_path);
+    cmd.current_dir(&config.repo_path);
     cmd.args(["issue", "list"]);
     cmd.args(["--label", "T-compiler", "--label", "P-high"]);
     cmd.args(["--limit", "100"]);
@@ -58,7 +59,27 @@ fn main() -> EResult<()> {
     let issues: Vec<IssueMetadataRepr> = serde_json::from_slice(&res.stdout)
         .wrap_err("failed to deserialize JSON response as issue metadata")?;
 
-    let issues = issues
+    let issues = simplify_repr(issues);
+    info!("P-high T-compiler issues count: {}", issues.len());
+
+    info!("writing issue metadata json to `{}`", config.persist_path);
+    let buf = serde_json::to_vec_pretty(&issues)?;
+    fs::write(&config.persist_path, &buf)
+        .wrap_err_with(|| format!("failed to write response to `{}`", config.persist_path))?;
+
+    info!("writing markdown stub to `{}`", config.markdown_stub_path);
+    let stub = markdown_stub::render_markdown_stub(&config, &issues)
+        .wrap_err("failed to render markdown stub")?;
+
+    fs::write(&config.markdown_stub_path, &stub).wrap_err_with(|| {
+        format!("failed to write markdown stub to `{}`", config.markdown_stub_path)
+    })?;
+
+    Ok(())
+}
+
+fn simplify_repr(issues: Vec<IssueMetadataRepr>) -> Vec<IssueMetadata> {
+    issues
         .into_iter()
         .map(
             |IssueMetadataRepr {
@@ -81,13 +102,5 @@ fn main() -> EResult<()> {
                 url,
             },
         )
-        .collect::<Vec<_>>();
-
-    let buf = serde_json::to_vec_pretty(&issues)?;
-    fs::write(&config.persist_path, &buf)
-        .wrap_err_with(|| format!("failed to write response to `{}`", config.persist_path))?;
-
-    info!("P-high T-compiler issues count: {}", issues.len());
-
-    Ok(())
+        .collect()
 }

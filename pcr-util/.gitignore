@@ -1,2 +1,6 @@
 # cargo artifacts
 target/
+
+# generated (default filenames)
+issue-review-stub.md
+p-high-t-compiler-issues.json

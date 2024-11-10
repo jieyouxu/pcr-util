@@ -75,11 +75,11 @@ use time::OffsetDateTime;
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IssueMetadataRepr {
-    pub assignees: Vec<Assignee>,
+    pub assignees: BTreeSet<Assignee>,
     pub author: Author,
     #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
-    pub labels: Vec<Label>,
+    pub labels: BTreeSet<Label>,
     pub number: u64,
     pub title: String,
     #[serde(with = "time::serde::rfc3339")]
@@ -87,17 +87,17 @@ pub struct IssueMetadataRepr {
     pub url: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Assignee {
     pub login: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Author {
     pub login: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Label {
     pub name: String,
 }
@@ -106,11 +106,11 @@ pub struct Label {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct IssueMetadata {
-    pub assignees: BTreeSet<String>,
+    pub assignees: Vec<String>,
     pub author: String,
     #[serde(with = "time::serde::rfc3339")]
     pub created_at: OffsetDateTime,
-    pub labels: BTreeSet<String>,
+    pub labels: Vec<String>,
     pub number: u64,
     pub title: String,
     #[serde(with = "time::serde::rfc3339")]
