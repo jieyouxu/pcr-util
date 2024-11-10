@@ -2,6 +2,8 @@
 
 **P**-high t-**C**ompiler pre-triage **R**eview util.
 
+(Can't be bothered to come up with a better name, close enough.)
+
 ## Usage
 
 - Assumes `gh` cli util is available in PATH and is already authenticated.
