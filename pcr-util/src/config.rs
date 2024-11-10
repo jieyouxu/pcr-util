@@ -13,7 +13,7 @@ pub struct Conf {
     pub config_path: Utf8PathBuf,
 
     /// Where to store the deserialized JSON response.
-    #[clap(long, default_value_t = Utf8PathBuf::from("p-high-t-compiler-issues.json"))]
+    #[clap(long, default_value_t = Utf8PathBuf::from("p-high-issues.json"))]
     pub persist_path: Utf8PathBuf,
 
     /// Markdown stub document title.

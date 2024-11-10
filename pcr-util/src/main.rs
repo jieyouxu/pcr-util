@@ -10,18 +10,19 @@
 //!     > p-high-t-compiler-issues.json
 //! ```
 
+mod cmd;
 mod config;
 mod issue_metadata;
 mod logging;
 mod markdown_stub;
 
 use std::fs;
-use std::process::Command;
 
 use clap::Parser;
 use color_eyre::Result as EResult;
 use color_eyre::eyre::{Context, eyre};
 use issue_metadata::IssueMetadata;
+use markdown_stub::ReviewInfo;
 use tracing::*;
 use tracing_subscriber::filter;
 
@@ -39,36 +40,15 @@ fn main() -> EResult<()> {
     }
     info!("using config: {:#?}", config);
 
-    info!("downloading P-high T-compiler issues via `gh` cli tool");
-
     if !config.repo_path.exists() {
         return Err(eyre!("provided repo path `{}` does not exist!", config.repo_path));
     }
 
-    let mut cmd = Command::new("gh");
-    cmd.current_dir(&config.repo_path);
-    cmd.args(["issue", "list"]);
-    cmd.args(["--label", "T-compiler", "--label", "P-high"]);
-    cmd.args(["--limit", "100"]);
-    cmd.args(["--json", "assignees,author,createdAt,labels,number,title,updatedAt,url"]);
-    let res = cmd.output().wrap_err("failed to obtain JSON response via `gh` cli")?;
-    if !res.status.success() {
-        return Err(eyre!("`gh` cli command failed: {}", String::from_utf8_lossy(&res.stderr)));
-    }
-
-    let issues: Vec<IssueMetadataRepr> = serde_json::from_slice(&res.stdout)
-        .wrap_err("failed to deserialize JSON response as issue metadata")?;
-
-    let issues = simplify_repr(issues);
-    info!("P-high T-compiler issues count: {}", issues.len());
-
-    info!("writing issue metadata json to `{}`", config.persist_path);
-    let buf = serde_json::to_vec_pretty(&issues)?;
-    fs::write(&config.persist_path, &buf)
-        .wrap_err_with(|| format!("failed to write response to `{}`", config.persist_path))?;
-
+    let p_high = p_high(&config).wrap_err("failed to collect P-high issues")?;
+    let review_info = ReviewInfo::new(&p_high);
     info!("writing markdown stub to `{}`", config.markdown_stub_path);
-    let stub = markdown_stub::render_markdown_stub(&config, &issues)
+
+    let stub = markdown_stub::render_markdown_stub(&config, review_info)
         .wrap_err("failed to render markdown stub")?;
 
     fs::write(&config.markdown_stub_path, &stub).wrap_err_with(|| {
@@ -78,29 +58,18 @@ fn main() -> EResult<()> {
     Ok(())
 }
 
-fn simplify_repr(issues: Vec<IssueMetadataRepr>) -> Vec<IssueMetadata> {
-    issues
-        .into_iter()
-        .map(
-            |IssueMetadataRepr {
-                 assignees,
-                 author,
-                 created_at,
-                 labels,
-                 number,
-                 title,
-                 updated_at,
-                 url,
-             }| IssueMetadata {
-                assignees: assignees.into_iter().map(|a| a.login).collect(),
-                author: author.login,
-                labels: labels.into_iter().map(|l| l.name).collect(),
-                number,
-                title,
-                created_at,
-                updated_at,
-                url,
-            },
-        )
-        .collect()
+/// P-high
+fn p_high(config: &Conf) -> EResult<Vec<IssueMetadata>> {
+    let _sp = span!(Level::INFO, "collecting P-high issues").entered();
+
+    let p_high = cmd::p_high_cmd(&config.repo_path)?;
+    let p_high: Vec<IssueMetadataRepr> = serde_json::from_slice(&p_high)
+        .wrap_err("failed to deserialize JSON response as issue metadata")?;
+    let p_high = issue_metadata::simplify_repr(p_high);
+    info!("P-high issues count: {}", p_high.len());
+    info!("writing P-high issue metadata json to `{}`", config.persist_path);
+    let json = serde_json::to_vec_pretty(&p_high)?;
+    fs::write(&config.persist_path, &json)
+        .wrap_err_with(|| format!("failed to write response to `{}`", config.persist_path))?;
+    Ok(p_high)
 }

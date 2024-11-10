@@ -117,3 +117,30 @@ pub struct IssueMetadata {
     pub updated_at: OffsetDateTime,
     pub url: String,
 }
+
+pub(crate) fn simplify_repr(issues: Vec<IssueMetadataRepr>) -> Vec<IssueMetadata> {
+    issues
+        .into_iter()
+        .map(
+            |IssueMetadataRepr {
+                 assignees,
+                 author,
+                 created_at,
+                 labels,
+                 number,
+                 title,
+                 updated_at,
+                 url,
+             }| IssueMetadata {
+                assignees: assignees.into_iter().map(|a| a.login).collect(),
+                author: author.login,
+                labels: labels.into_iter().map(|l| l.name).collect(),
+                number,
+                title,
+                created_at,
+                updated_at,
+                url,
+            },
+        )
+        .collect()
+}
