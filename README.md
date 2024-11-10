@@ -44,3 +44,7 @@ Options:
   -h, --help
           Print help
 ```
+
+You can copy the generated markdown stub into something like HackMD, e.g.:
+
+![Screenshot 2024-11-11 003939](https://github.com/user-attachments/assets/beac98f6-e47b-4359-b972-a476afa73162)
