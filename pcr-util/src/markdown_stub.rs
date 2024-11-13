@@ -76,7 +76,7 @@ impl<'c> RenderCtxt<'c> {
     }
 
     fn render_markdown_stub<'a>(&mut self, info: ReviewInfo<'a>) -> EResult<()> {
-        self.render_document_heading(&self.config.markdown_stub_title)?;
+        self.render_document_header(&self.config.markdown_stub_title)?;
 
         let no_team = info.p_high_no_team();
         let (no_owner, has_owner) = info.t_compiler_p_high_partition_by_ownership();
@@ -88,9 +88,14 @@ impl<'c> RenderCtxt<'c> {
         Ok(())
     }
 
-    fn render_document_heading(&mut self, title: &str) -> EResult<()> {
+    fn render_document_header(&mut self, title: &str) -> EResult<()> {
         writeln!(&mut self.buf, "<!-- stubs generated with pcr-util -->")?;
         writeln!(&mut self.buf, "# {}\n", title)?;
+        writeln!(
+            &mut self.buf,
+            "*Issues snapshot collected at {}*",
+            time::OffsetDateTime::now_utc()
+        )?;
         Ok(())
     }
 
@@ -111,7 +116,10 @@ impl<'c> RenderCtxt<'c> {
 
     fn render_no_owner(&mut self, no_owner: &[&IssueMetadata]) -> EResult<()> {
         const NO_OWNER_URL: &str = "https://github.com/rust-lang/rust/issues?q=is%3Aissue%20is%3Aopen%20label%3AT-compiler%20label%3AP-high%20-label%3Awg-debugging%20-label%3AWG-embedded%20-label%3AWG-diagnostics%20-label%3AWG-async%20-label%3AWG-incr-comp%20no%3Aassignee%20sort%3Acreated-asc%20-label%3AI-types-nominated%20-label%3AI-lang-nominated%20-label%3AI-compiler-nominated%20-label%3AT-types%20-label%3AWG-llvm";
-        writeln!(&mut self.buf, "## P-high T-compiler issues missing owner (no WG and no assignee)\n")?;
+        writeln!(
+            &mut self.buf,
+            "## P-high T-compiler issues missing owner (no WG and no assignee)\n"
+        )?;
         writeln!(&mut self.buf, "[P-high issues with no owner]({NO_OWNER_URL})\n\n")?;
         self.render_issues(no_owner)?;
         write!(&mut self.buf, "\n\n")?;
