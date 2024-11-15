@@ -44,7 +44,11 @@ fn main() -> EResult<()> {
         return Err(eyre!("provided repo path `{}` does not exist!", config.repo_path));
     }
 
-    let p_high = p_high(&config).wrap_err("failed to collect P-high issues")?;
+    let mut p_high = p_high(&config).wrap_err("failed to collect P-high issues")?;
+
+    // Intentionally sort by oldest to newest.
+    p_high.sort_by(|a, b| a.number.cmp(&b.number));
+
     let review_info = ReviewInfo::new(&p_high);
     info!("writing markdown stub to `{}`", config.markdown_stub_path);
 
