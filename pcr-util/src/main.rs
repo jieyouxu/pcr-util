@@ -16,6 +16,7 @@ use tracing_subscriber::filter;
 
 use crate::config::{Config, LogLevel};
 
+mod compiler_tracking_issue;
 mod p_high;
 
 fn main() -> EResult<()> {
@@ -34,7 +35,7 @@ fn main() -> EResult<()> {
     }
 
     info!("Performing triage: {}", config.cmd.triage_kind());
-    info!("\trepo_path:\t`{}`", config.common.repo_path);
+    info!("\trepo_path:\t\t`{}`", config.common.repo_path);
 
     match config.cmd {
         config::Cmd::PHighTriage(triage_config) => {
@@ -43,6 +44,7 @@ fn main() -> EResult<()> {
         }
         config::Cmd::CompilerTrackingIssueTriage(triage_config) => {
             print_common_triage_config(&triage_config.common);
+            compiler_tracking_issue::perform_triage(&config.common, &triage_config)?;
             todo!()
         }
         config::Cmd::NoTeamTrackingIssueTriage(triage_config) => {
@@ -55,7 +57,7 @@ fn main() -> EResult<()> {
 }
 
 fn print_common_triage_config(config: &CommonTriageConfig) {
-    info!("\tpersist_path:\t`{}`", config.persist_path);
+    info!("\tpersist_path:\t\t`{}`", config.persist_path);
     info!("\tmarkdown_stub_path:\t`{}`", config.markdown_stub_path);
     info!("\tmarkdown_stub_title:\t\"{}\"", config.markdown_stub_title);
 }

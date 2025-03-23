@@ -8,12 +8,12 @@ use tracing::*;
 
 use self::markdown_stub::ReviewInfo;
 use crate::EResult;
-use crate::config::{CommonConf, PHighTriage};
+use crate::config::{CommonConfig, PHighTriage};
 use crate::issue_metadata::{self, IssueMetadataRepr};
 
-pub(crate) fn perform_triage(config: &CommonConf, triage_config: &PHighTriage) -> EResult<()> {
+pub(crate) fn perform_triage(config: &CommonConfig, triage_config: &PHighTriage) -> EResult<()> {
     let p_high = {
-        let _sp = span!(Level::INFO, "collecting P-high issues").entered();
+        let _sp = span!(Level::INFO, "Collecting P-high issues").entered();
         let p_high = cmd::p_high_cmd(&config.repo_path)?;
         let p_high: Vec<IssueMetadataRepr> = serde_json::from_slice(&p_high)
             .wrap_err("failed to deserialize JSON response as issue metadata")?;
@@ -25,14 +25,14 @@ pub(crate) fn perform_triage(config: &CommonConf, triage_config: &PHighTriage) -
     };
 
     info!("P-high issues count: {}", p_high.len());
-    info!("writing P-high issue metadata json to `{}`", triage_config.common.persist_path);
+    info!("Writing P-high issue metadata json to `{}`", triage_config.common.persist_path);
     let json = serde_json::to_vec_pretty(&p_high)?;
     fs::write(&triage_config.common.persist_path, &json).wrap_err_with(|| {
         format!("failed to write response to `{}`", triage_config.common.persist_path)
     })?;
 
     let review_info = ReviewInfo::new(&p_high);
-    info!("writing markdown stub to `{}`", triage_config.common.markdown_stub_path);
+    info!("Writing markdown stub to `{}`", triage_config.common.markdown_stub_path);
 
     let stub = markdown_stub::render_markdown_stub(&triage_config.common, review_info)
         .wrap_err("failed to render markdown stub")?;

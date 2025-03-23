@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Parser)]
 pub struct Config {
     #[command(flatten)]
-    pub common: CommonConf,
+    pub common: CommonConfig,
 
     #[command(subcommand)]
     pub cmd: Cmd,
 }
 
 #[derive(Debug, Args)]
-pub struct CommonConf {
+pub struct CommonConfig {
     /// Path to a `rust-lang/rust` checkout.
     #[clap(long)]
     pub repo_path: Utf8PathBuf,

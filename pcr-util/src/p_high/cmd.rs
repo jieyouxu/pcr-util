@@ -6,7 +6,7 @@ use color_eyre::eyre::{Context, eyre};
 use tracing::*;
 
 pub(crate) fn p_high_cmd(repo_path: &Utf8Path) -> EResult<Vec<u8>> {
-    info!("downloading P-high issues via `gh` cli tool");
+    info!("Downloading P-high issues via `gh` cli");
     let mut cmd = Command::new("gh");
     cmd.current_dir(repo_path);
     cmd.args(["issue", "list"]);
