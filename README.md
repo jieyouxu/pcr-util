@@ -4,6 +4,8 @@
 
 (Can't be bothered to come up with a better name, close enough.)
 
+(Which is already outdated, since it's now also useful for other kinds of triages.)
+
 ## Usage
 
 > [!TIP]
