@@ -78,6 +78,10 @@ impl<'c> RenderCtxt<'c> {
 
     fn render_issue(&mut self, issue: &IssueMetadata) -> EResult<()> {
         writeln!(&mut self.buf, "### #{}: {}", issue.number, issue.title)?;
+
+        writeln!(&mut self.buf, "| Kind | Value |")?;
+        writeln!(&mut self.buf, "| - | - |")?;
+
         self.render_issue_link(&issue.url)?;
         self.render_creation_date(issue.created_at.date())?;
         self.render_labels(&issue.labels)?;
@@ -89,39 +93,39 @@ impl<'c> RenderCtxt<'c> {
     }
 
     fn render_issue_link(&mut self, url: &str) -> EResult<()> {
-        writeln!(&mut self.buf, "Link: <{}>", url)?;
+        writeln!(&mut self.buf, "| Link | <{}> |", url)?;
         Ok(())
     }
 
     fn render_creation_date(&mut self, date: Date) -> EResult<()> {
-        writeln!(&mut self.buf, "Creation date: {}", date)?;
+        writeln!(&mut self.buf, "| Creation date | {} |", date)?;
         Ok(())
     }
 
     fn render_labels(&mut self, labels: &[String]) -> EResult<()> {
-        write!(&mut self.buf, "Labels: ")?;
+        write!(&mut self.buf, "| Labels | ")?;
         self.render_comma_sep_inline_code_item(labels)?;
-        writeln!(&mut self.buf)?;
+        writeln!(&mut self.buf, "|")?;
         Ok(())
     }
 
     fn render_author(&mut self, author: &str) -> EResult<()> {
-        writeln!(&mut self.buf, "Author: `{author}`")?;
+        writeln!(&mut self.buf, "| Author | `{author}` |")?;
         Ok(())
     }
 
     fn render_wg(&mut self, labels: &[String]) -> EResult<()> {
-        write!(&mut self.buf, "Working groups: ")?;
+        write!(&mut self.buf, "| Working groups | ")?;
         let wg_labels = labels.iter().filter(|l| l.starts_with("WG-")).collect::<Vec<_>>();
         self.render_comma_sep_inline_code_item(wg_labels.as_slice())?;
-        writeln!(&mut self.buf)?;
+        writeln!(&mut self.buf, "|")?;
         Ok(())
     }
 
     fn render_assignees(&mut self, assignees: &[String]) -> EResult<()> {
-        write!(&mut self.buf, "Assignees: ")?;
+        write!(&mut self.buf, "| Assignees | ")?;
         self.render_comma_sep_inline_code_item(assignees)?;
-        writeln!(&mut self.buf)?;
+        writeln!(&mut self.buf, "|")?;
         Ok(())
     }
 }
