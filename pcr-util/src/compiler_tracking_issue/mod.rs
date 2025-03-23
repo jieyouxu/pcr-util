@@ -1,4 +1,5 @@
 mod cmd;
+mod markdown_stub;
 
 use std::fs;
 
@@ -36,5 +37,15 @@ pub(crate) fn perform_triage(
         format!("failed to write response to `{}`", triage_config.common.persist_path)
     })?;
 
-    todo!()
+    info!("Writing markdown stub to `{}`", triage_config.common.markdown_stub_path);
+
+    let stub =
+        markdown_stub::render_markdown_stub(&triage_config.common, &compiler_tracking_issues)
+            .wrap_err("failed to render markdown stub")?;
+
+    fs::write(&triage_config.common.markdown_stub_path, &stub).wrap_err_with(|| {
+        format!("failed to write markdown stub to `{}`", triage_config.common.markdown_stub_path)
+    })?;
+
+    Ok(())
 }

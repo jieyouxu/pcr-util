@@ -45,7 +45,6 @@ fn main() -> EResult<()> {
         config::Cmd::CompilerTrackingIssueTriage(triage_config) => {
             print_common_triage_config(&triage_config.common);
             compiler_tracking_issue::perform_triage(&config.common, &triage_config)?;
-            todo!()
         }
         config::Cmd::NoTeamTrackingIssueTriage(triage_config) => {
             print_common_triage_config(&triage_config.common);
