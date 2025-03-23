@@ -5,7 +5,7 @@ use itertools::Itertools as _;
 use time::Date;
 
 use crate::IssueMetadata;
-use crate::config::Conf;
+use crate::config::CommonTriageConfig;
 
 pub(crate) struct ReviewInfo<'a> {
     pub(crate) p_high: &'a [IssueMetadata],
@@ -41,19 +41,22 @@ impl<'a> ReviewInfo<'a> {
     }
 }
 
-pub(crate) fn render_markdown_stub<'a>(config: &Conf, info: ReviewInfo<'a>) -> EResult<String> {
+pub(crate) fn render_markdown_stub<'a>(
+    config: &CommonTriageConfig,
+    info: ReviewInfo<'a>,
+) -> EResult<String> {
     let mut ctx = RenderCtxt::new(config);
     ctx.render_markdown_stub(info)?;
     Ok(ctx.finish())
 }
 
 struct RenderCtxt<'c> {
-    config: &'c Conf,
+    config: &'c CommonTriageConfig,
     buf: String,
 }
 
 impl<'c> RenderCtxt<'c> {
-    fn new(config: &'c Conf) -> Self {
+    fn new(config: &'c CommonTriageConfig) -> Self {
         Self { buf: String::new(), config }
     }
 

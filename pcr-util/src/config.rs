@@ -1,27 +1,21 @@
 use camino::Utf8PathBuf;
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Parser)]
-pub struct Conf {
+pub struct Config {
+    #[command(flatten)]
+    pub common: CommonConf,
+
+    #[command(subcommand)]
+    pub cmd: Cmd,
+}
+
+#[derive(Debug, Args)]
+pub struct CommonConf {
     /// Path to a `rust-lang/rust` checkout.
     #[clap(long)]
     pub repo_path: Utf8PathBuf,
-
-    /// Path to config file.
-    #[clap(long, default_value_t = Utf8PathBuf::from("config.toml"))]
-    pub config_path: Utf8PathBuf,
-
-    /// Where to store the deserialized JSON response.
-    #[clap(long, default_value_t = Utf8PathBuf::from("p-high-issues.json"))]
-    pub persist_path: Utf8PathBuf,
-
-    /// Markdown stub document title.
-    #[clap(long, default_value_t = String::from("2024 Q3 T-compiler P-high Issue Review"))]
-    pub markdown_stub_title: String,
-    /// Where to output a Markdown issue review document stub.
-    #[clap(long, default_value_t = Utf8PathBuf::from("issue-review-stub.md"))]
-    pub markdown_stub_path: Utf8PathBuf,
 
     /// Default log level.
     #[clap(long, value_enum, default_value_t = LogLevel::Info)]
@@ -36,4 +30,53 @@ pub enum LogLevel {
     Info,
     Debug,
     Trace,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum Cmd {
+    PHighTriage(PHighTriage),
+    CompilerTrackingIssueTriage(CompilerTrackingIssueTriage),
+    NoTeamTrackingIssueTriage(NoTeamTrackingIssueTriage),
+}
+
+impl Cmd {
+    pub fn triage_kind(&self) -> &'static str {
+        match self {
+            Cmd::PHighTriage(_) => "P-high triage",
+            Cmd::CompilerTrackingIssueTriage(_) => "T-compiler tracking issue triage",
+            Cmd::NoTeamTrackingIssueTriage(_) => "No-team tracking issue triage",
+        }
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct CommonTriageConfig {
+    /// Where to store the deserialized JSON response.
+    #[clap(long)]
+    pub persist_path: Utf8PathBuf,
+
+    /// Markdown stub document title.
+    #[clap(long)]
+    pub markdown_stub_title: String,
+    /// Where to output a Markdown issue review document stub.
+    #[clap(long)]
+    pub markdown_stub_path: Utf8PathBuf,
+}
+
+#[derive(Debug, Parser)]
+pub struct PHighTriage {
+    #[command(flatten)]
+    pub common: CommonTriageConfig,
+}
+
+#[derive(Debug, Parser)]
+pub struct CompilerTrackingIssueTriage {
+    #[command(flatten)]
+    pub common: CommonTriageConfig,
+}
+
+#[derive(Debug, Parser)]
+pub struct NoTeamTrackingIssueTriage {
+    #[command(flatten)]
+    pub common: CommonTriageConfig,
 }
