@@ -12,15 +12,17 @@ use crate::config::{CommonConf, PHighTriage};
 use crate::issue_metadata::{self, IssueMetadataRepr};
 
 pub(crate) fn perform_triage(config: &CommonConf, triage_config: &PHighTriage) -> EResult<()> {
-    let _sp = span!(Level::INFO, "collecting P-high issues").entered();
+    let p_high = {
+        let _sp = span!(Level::INFO, "collecting P-high issues").entered();
+        let p_high = cmd::p_high_cmd(&config.repo_path)?;
+        let p_high: Vec<IssueMetadataRepr> = serde_json::from_slice(&p_high)
+            .wrap_err("failed to deserialize JSON response as issue metadata")?;
+        let mut p_high = issue_metadata::simplify_repr(p_high);
 
-    let p_high = cmd::p_high_cmd(&config.repo_path)?;
-    let p_high: Vec<IssueMetadataRepr> = serde_json::from_slice(&p_high)
-        .wrap_err("failed to deserialize JSON response as issue metadata")?;
-    let mut p_high = issue_metadata::simplify_repr(p_high);
-
-    // Intentionally sort by oldest to newest.
-    p_high.sort_by(|a, b| a.number.cmp(&b.number));
+        // Intentionally sort by oldest to newest.
+        p_high.sort_by(|a, b| a.number.cmp(&b.number));
+        p_high
+    };
 
     info!("P-high issues count: {}", p_high.len());
     info!("writing P-high issue metadata json to `{}`", triage_config.common.persist_path);
