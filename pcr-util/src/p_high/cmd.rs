@@ -8,7 +8,7 @@ use tracing::*;
 pub(crate) fn p_high_cmd(repo_path: &Utf8Path) -> EResult<Vec<u8>> {
     info!("downloading P-high issues via `gh` cli tool");
     let mut cmd = Command::new("gh");
-    cmd.current_dir(&repo_path);
+    cmd.current_dir(repo_path);
     cmd.args(["issue", "list"]);
     cmd.args(["--label", "P-high"]);
     cmd.args(["--limit", "100"]);

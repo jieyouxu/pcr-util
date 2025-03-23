@@ -163,10 +163,10 @@ impl<'c> RenderCtxt<'c> {
         Ok(())
     }
 
-    fn render_labels(&mut self, labels: &Vec<String>) -> EResult<()> {
+    fn render_labels(&mut self, labels: &[String]) -> EResult<()> {
         write!(&mut self.buf, "Labels: ")?;
         self.render_comma_sep_inline_code_item(labels)?;
-        write!(&mut self.buf, "\n")?;
+        writeln!(&mut self.buf)?;
         Ok(())
     }
 
@@ -177,16 +177,16 @@ impl<'c> RenderCtxt<'c> {
 
     fn render_wg(&mut self, labels: &[String]) -> EResult<()> {
         write!(&mut self.buf, "Working groups: ")?;
-        let wg_labels = labels.into_iter().filter(|l| l.starts_with("WG-")).collect::<Vec<_>>();
+        let wg_labels = labels.iter().filter(|l| l.starts_with("WG-")).collect::<Vec<_>>();
         self.render_comma_sep_inline_code_item(wg_labels.as_slice())?;
-        write!(&mut self.buf, "\n")?;
+        writeln!(&mut self.buf)?;
         Ok(())
     }
 
     fn render_assignees(&mut self, assignees: &[String]) -> EResult<()> {
         write!(&mut self.buf, "Assignees: ")?;
         self.render_comma_sep_inline_code_item(assignees)?;
-        write!(&mut self.buf, "\n")?;
+        writeln!(&mut self.buf)?;
         Ok(())
     }
 }

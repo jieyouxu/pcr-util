@@ -1,5 +1,7 @@
 //! Assumes you have `gh` cli tool and is already authenticated.
 
+#![allow(clippy::enum_variant_names)]
+
 mod config;
 mod issue_metadata;
 mod logging;
