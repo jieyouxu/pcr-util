@@ -93,7 +93,7 @@ impl<'c> RenderCtxt<'c> {
 
     fn render_document_header(&mut self, title: &str) -> EResult<()> {
         writeln!(&mut self.buf, "<!-- stubs generated with pcr-util -->")?;
-        writeln!(&mut self.buf, "# {}\n", title)?;
+        writeln!(&mut self.buf, "# {title}\n")?;
 
         let datetime = time::OffsetDateTime::now_utc();
         writeln!(
@@ -157,12 +157,12 @@ impl<'c> RenderCtxt<'c> {
     }
 
     fn render_issue_link(&mut self, url: &str) -> EResult<()> {
-        writeln!(&mut self.buf, "Link: <{}>", url)?;
+        writeln!(&mut self.buf, "Link: <{url}>")?;
         Ok(())
     }
 
     fn render_creation_date(&mut self, date: Date) -> EResult<()> {
-        writeln!(&mut self.buf, "Creation date: {}", date)?;
+        writeln!(&mut self.buf, "Creation date: {date}")?;
         Ok(())
     }
 
