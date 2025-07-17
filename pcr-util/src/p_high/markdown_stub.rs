@@ -92,13 +92,13 @@ impl<'c> RenderCtxt<'c> {
     }
 
     fn render_document_header(&mut self, title: &str) -> EResult<()> {
-        writeln!(&mut self.buf, "<!-- stubs generated with pcr-util -->")?;
+        writeln!(&mut self.buf, "<!-- stubs generated with pcr-util -->\n")?;
         writeln!(&mut self.buf, "# {title}\n")?;
 
         let datetime = time::OffsetDateTime::now_utc();
         writeln!(
             &mut self.buf,
-            "*Issues snapshot collected on {}*",
+            "*Issues snapshot collected on {}*\n\n",
             datetime.format(&time::format_description::well_known::Rfc3339).unwrap()
         )?;
 
