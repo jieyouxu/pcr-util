@@ -32,6 +32,7 @@ pub(crate) fn compiler_tracking_issue_cmd(repo_path: &Utf8Path) -> EResult<Vec<u
         -label:T-rust-analyzer \
         -label:T-style \
         -label:T-types \
+        -label:T-leadership-council
     ";
 
     cmd.args(["--search", search_query]);
