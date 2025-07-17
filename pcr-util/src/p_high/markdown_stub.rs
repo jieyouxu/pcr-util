@@ -106,7 +106,7 @@ impl<'c> RenderCtxt<'c> {
     }
 
     fn render_no_team(&mut self, no_team: &[&IssueMetadata]) -> EResult<()> {
-        const NO_TEAM_URL: &str = "is:open is:issue label:P-high -label:T-cargo -label:T-community -label:T-compiler -label:T-core -label:T-crates-io -label:T-dev-tools -label:T-docs-rs -label:T-infra -label:T-libs -label:T-libs-api -label:T-release -label:T-release -label:T-rustdoc -label:T-style -label:T-types -label:T-lang -label:T-leadership-council";
+        const NO_TEAM_URL: &str = "https://github.com/rust-lang/rust/issues?q=is%3Aopen%20is%3Aissue%20label%3AP-high%20-label%3AT-cargo%20-label%3AT-community%20-label%3AT-compiler%20-label%3AT-core%20-label%3AT-crates-io%20-label%3AT-dev-tools%20-label%3AT-docs-rs%20-label%3AT-infra%20-label%3AT-libs%20-label%3AT-libs-api%20-label%3AT-release%20-label%3AT-release%20-label%3AT-rustdoc%20-label%3AT-style%20-label%3AT-types%20-label%3AT-lang%20-label%3AT-leadership-council";
         writeln!(&mut self.buf, "## P-high missing team label\n")?;
         writeln!(&mut self.buf, "[P-high issues without team label]({NO_TEAM_URL})\n\n")?;
 
